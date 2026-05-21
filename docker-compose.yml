@@ -11,7 +11,6 @@ x-kong-env: &kong-env
   KONG_PROXY_ERROR_LOG: /dev/stderr
   KONG_ADMIN_ERROR_LOG: /dev/stderr
   KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
-  KONG_LUA_SHARED_DICTS: blacklist_cache 5m, locks_cache 1m
   # 注意这一行：将来我们写好插件，就要把名字加在这里告诉 Kong 去加载它
   KONG_PLUGINS: bundled,pomodoro-plugin
 

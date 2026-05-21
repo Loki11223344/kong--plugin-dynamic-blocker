@@ -6,7 +6,7 @@ local _M = {}
 
 function _M.execute(conf)
   -- 1. init cache
-  local cache = ngx.shared.blacklist_cache
+  local cache = ngx.shared.kong
   if not cache then
     kong.log.err("fata error: cache can not access")
     return
@@ -18,7 +18,7 @@ function _M.execute(conf)
   -- 3. 如果本地没有缓存，需要去 Redis 拉取
   if not rules_json then
     -- add lock
-    local lock, err = resty_lock:new("locks_cache")
+    local lock, err = resty_lock:new("kong_locks")
     if not lock then return end
 
     local elapsed, err = lock:lock("update_redis_lock")
@@ -51,12 +51,14 @@ function _M.execute(conf)
   -- 4. 执行匹配拦截阶段
   if rules_json then
     local rules = cjson.decode(rules_json)
+    kong.log.notice("🔍 准备进入循环，当前 rules 数量: ", #rules)
     local current_path = kong.request.get_path()
     
     -- TODO: 遍历 rules 数组 (可使用 for _, rule in ipairs(rules) do)
     for _, rule in ipairs(rules) do
         local judge = ngx.re.match(current_path, rule, "jo")
         if judge then
+            kong.log.notice("🎯 正在比对 -> 请求路径: [", current_path, "] vs Redis规则: [", rule, "]")
             return kong.response.exit(403, {
                 error = "Access Denied",
                 message = "The request path is blocked by dynamic security rules.",

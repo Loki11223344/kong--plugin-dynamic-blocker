@@ -15,7 +15,7 @@ local CustomHandler = {
     jwt_auth.execute(conf)
   
     -- 2. 其次执行番茄钟限流（有拦截权，可能中断请求）
-    pomodoro.execute(conf)
+    -- pomodoro.execute(conf)
   
     -- 3. （预留位）未来这里可以无缝接入 Redis 黑名单防护模块...
     redis_shield.execute(conf)
